@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import authService from "../service/auth.service";
 import { sendResponse } from "../../utils/sendResponse";
-import { signToken } from "../../utils/jwt";
+import { signToken, verifyToken } from "../../utils/jwt";
 
 export const signup = async (req: Request, res: Response) => {
     const user = await authService.createUser(req.body);
@@ -39,4 +39,17 @@ export const login = async (req: Request, res: Response) => {
 
     return sendResponse(res, { message: "User Login Successfully", data: result})
 
+}
+
+export const refresh = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies?.refreshToken
+    if(!refreshToken) {
+        return sendResponse(res, {message: "Refresh Token Not Found"}, 401)
+    }
+
+    const payload = verifyToken(refreshToken, "refresh")
+    if(!payload) {
+        return sendResponse(res, {message: "Invalid Refresh Token"}, 401)
+    }
+    console.log(payload);
 }
